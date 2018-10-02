@@ -329,12 +329,76 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
       Your minimax agent with alpha-beta pruning (question 3)
     """
 
+    def alphaValue(self, gameState, depth, agent):
+        alpha = -999999
+        if self.isTerminal(gameState, depth, agent):
+        # print "Evaluation Function", self.evaluationFunction(gameState)
+            return self.evaluationFunction(gameState)
+
+        for newState in gameState.getLegalActions(agent):
+            alpha = max(alpha, self.betaValue(newState, depth + 1, agent))
+
+        return alpha
+
+    def betaValue(self, gameState, depth, agent):
+        beta = 999999
+        if self.isTerminal(gameState, depth, agent):
+        # print "Evaluation Function", self.evaluationFunction(gameState)
+            return self.evaluationFunction(gameState)
+
+        for newState in gameState.getLegalActions(agent):
+            beta = min(beta, self.alphaValue(newState, depth + 1, agent))
+
+        return beta
+
+    def minimax(self, gameState, depth, agent, alpha, beta):
+        
+            if self.isTerminal(gameState, depth, agent):
+                # print "Evaluation Function", self.evaluationFunction(gameState)
+                return self.evaluationFunction(gameState)
+
+            minMaxSuccessor = []
+            if agent == 0:
+                currentAlpha = -999999
+                for newState in gameState.getLegalActions(agent):
+                    currentAlpha = max(currentAlpha, self.minimax(gameState.generateSuccessor(agent, newState), depth, 1, alpha, beta))
+                    alpha = max(alpha, currentAlpha)
+
+                    if alpha >= beta:
+                        break
+                return alpha
+
+            else:
+                currentBeta = 999999
+                newAgent = agent + 1
+                if gameState.getNumAgents() == newAgent:
+                    newAgent = 0
+                if newAgent == 0:
+                    depth = depth + 1
+                for newState in gameState.getLegalActions(agent):
+                    currentBeta = min(currentBeta, self.minimax(gameState.generateSuccessor(agent, newState), depth, newAgent, alpha, beta))
+                    beta = min(beta, currentBeta)
+
+                    if beta < alpha:
+                        break
+
+                return beta
+
+
     def getAction(self, gameState):
         """
           Returns the minimax action using self.depth and self.evaluationFunction
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        
+                
+        maximum = -999999
+        for agentState in gameState.getLegalActions(0):
+            utility = self.minimax(gameState.generateSuccessor(0, agentState), 0, 1, -999999, 999999)
+            if utility > maximum or maximum == -999999:
+                maximum = utility
+                action = agentState
+
+        return action
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
