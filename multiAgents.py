@@ -362,11 +362,14 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
                 currentAlpha = -999999
                 for newState in gameState.getLegalActions(agent):
                     currentAlpha = max(currentAlpha, self.minimax(gameState.generateSuccessor(agent, newState), depth, 1, alpha, beta))
+                    if currentAlpha > beta:
+                        return currentAlpha
+
                     alpha = max(alpha, currentAlpha)
 
-                    if alpha >= beta:
-                        break
-                return alpha
+                    # if alpha >= beta:
+                    #     break
+                return currentAlpha
 
             else:
                 currentBeta = 999999
@@ -377,12 +380,14 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
                     depth = depth + 1
                 for newState in gameState.getLegalActions(agent):
                     currentBeta = min(currentBeta, self.minimax(gameState.generateSuccessor(agent, newState), depth, newAgent, alpha, beta))
+                    if currentBeta < alpha:
+                        return currentBeta
                     beta = min(beta, currentBeta)
 
-                    if beta < alpha:
-                        break
+                    # if beta < alpha:
+                        # break
 
-                return beta
+                return currentBeta
 
 
     def getAction(self, gameState):
