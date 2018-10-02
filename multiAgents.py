@@ -255,16 +255,25 @@ class MultiAgentSearchAgent(Agent):
         self.evaluationFunction = util.lookup(evalFn, globals())
         self.depth = int(depth)
 
+    def isTerminal(self, state, depth, agent):
+        if depth == self.depth or state.isWin() or state.isLose() or state.getLegalActions(agent) == 0:
+            return True
+        else:
+            return False
+
+    def isPacman(self, state, agent):
+        if agent % state.getNumAgents() == 0:
+            return True
+        else:
+            return False
+            
 class MinimaxAgent(MultiAgentSearchAgent):
     """
       Your minimax agent (question 2)
     """
-    def minimax(state, depth, agent):
-    	if agent == state.getNumAgents:
-    		return minimax(state, depth + 1, 0)
 
-    	if self.isTerminal(state, depth, agent):
-    		return self.evaluationFunction(state)
+
+
     def getAction(self, gameState):
         """
           Returns the minimax action from the current gameState using self.depth
@@ -282,8 +291,38 @@ class MinimaxAgent(MultiAgentSearchAgent):
           gameState.getNumAgents():
             Returns the total number of agents in the game
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        def minimax(gameState, depth, agent):
+        
+            if self.isTerminal(gameState, depth, agent):
+                # print "Evaluation Function", self.evaluationFunction(gameState)
+                return self.evaluationFunction(gameState)
+
+            minMaxSuccessor = []
+            if agent == 0:
+                for newState in gameState.getLegalActions(agent):
+                    minMaxSuccessor.append(minimax(gameState.generateSuccessor(agent, newState), depth, 1))
+                return max(minMaxSuccessor)
+
+            else:
+                newAgent = agent + 1
+                if gameState.getNumAgents() == newAgent:
+                    newAgent = 0
+                if newAgent == 0:
+                    depth = depth + 1
+                for newState in gameState.getLegalActions(agent):
+                    minMaxSuccessor.append(minimax(gameState.generateSuccessor(agent, newState), depth, newAgent))
+                return min(minMaxSuccessor)
+                
+        maximum = -999999
+        for agentState in gameState.getLegalActions(0):
+            utility = minimax(gameState.generateSuccessor(0, agentState), 0, 1)
+            if utility > maximum or maximum == -999999:
+                maximum = utility
+                action = agentState
+
+        return action
+
+        #util.raiseNotDefined()
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
